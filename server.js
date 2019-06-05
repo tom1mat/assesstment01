@@ -104,11 +104,9 @@ app.use((req, res, next) => {
 
 app.get('/get/tech-events', (req, res) => res.status(200).send(JSON.stringify(data)));
 app.get('/get/data-version', (req, res) => res.status(200).send(JSON.stringify(data.version)));
-app.get('/update/data-version/:id', (req, res) => {//In real world should be PUT...
+app.get('/update/data-version/:id', (req, res) => {//In real world should be PUT method...
     const newVersion = req.params.id;
     data.version = newVersion;
-    console.log('asd');
-    // res.send(JSON.stringify(`Version updated to: ${newVersion}`));
     res.status(200).send(`Version updated to: ${newVersion}`);
 });
 

@@ -32,28 +32,27 @@
         </tfoot>
     </table>
 </body>
-<script src="service-worker.js"></script>
 <script src="assets/jquery-3.3.1.js"></script>
 <script src="assets/jquery.dataTables.min.js"></script>
 <script>
     $(document).ready(function() {
         const fetchData = (url) =>{
-            return async (request, callback, settings) =>{
+            return async (request, callback, settings) => {
                 let lastVersion;
                 try {
                     lastVersion = await fetch('http://localhost:3000/get/data-version');
                     lastVersion = await lastVersion.json();
-                    console.log("Last data version: ",lastVersion);    
+                    console.log("Last data version: ",lastVersion);
                 } catch (error) {
                     lastVersion = -1;
                     console.log("Last data version could not be fetched, taking last data from cache.");
                 }
-
-                const cachedata = await caches.match(url);
-                if(cachedata){
-                    const data = await cachedata.json();
-                    if(lastVersion == -1 || data.version == lastVersion){
+                
+                if(localStorage.hasOwnProperty('tech-events')){
+                    const currentVersion = localStorage.getItem('data-version');
+                    if(lastVersion == -1 || currentVersion == lastVersion){
                         console.log("Data cached!");
+                        const data = JSON.parse(localStorage.getItem('tech-events'));
                         return callback(data);
                     }else{
                         console.log("Data was not cached because the version has changed!");
@@ -63,7 +62,9 @@
                 try {
                     let data = await fetch(url);
                     data = await data.json();
-                    callback(data);    
+                    localStorage.setItem('tech-events', JSON.stringify(data));
+                    localStorage.setItem('data-version', data.version);//We store it apart for improving performance
+                    return callback(data);    
                 } catch (error) {
                     console.error(error);
                 }
