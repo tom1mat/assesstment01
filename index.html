@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <title>Document</title>
+</head>
+<body>
+    <table id="example" class="display" style="width:100%">
+        <thead>
+            <tr>
+                <th>First name</th>
+                <th>Last name</th>
+                <th>Position</th>
+                <th>Office</th>
+                <th>Start date</th>
+                <th>Salary</th>
+            </tr>
+        </thead>
+        <tfoot>
+            <tr>
+                <th>First name</th>
+                <th>Last name</th>
+                <th>Position</th>
+                <th>Office</th>
+                <th>Start date</th>
+                <th>Salary</th>
+            </tr>
+        </tfoot>
+    </table>
+</body>
+<script src="service-worker.js"></script>
+<script src="assets/jquery-3.3.1.js"></script>
+<script src="assets/jquery.dataTables.min.js"></script>
+<script>
+    $(document).ready(function() {
+        const fetchData = (url) =>{
+            return async (request, callback, settings) =>{
+                let lastVersion;
+                try {
+                    lastVersion = await fetch('http://localhost:3000/get/data-version');
+                    lastVersion = await lastVersion.json();
+                    console.log("Last data version: ",lastVersion);    
+                } catch (error) {
+                    lastVersion = -1;
+                    console.log("Last data version could not be fetched, taking last data from cache.");
+                }
+
+                const cachedata = await caches.match(url);
+                if(cachedata){
+                    const data = await cachedata.json();
+                    if(lastVersion == -1 || data.version == lastVersion){
+                        console.log("Data cached!");
+                        return callback(data);
+                    }else{
+                        console.log("Data was not cached because the version has changed!");
+                    }
+                }
+
+                try {
+                    let data = await fetch(url);
+                    data = await data.json();
+                    callback(data);    
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+        }
+        $('#example').DataTable({
+            "processing": true,
+            "serverSide": true,
+            "ajax": fetchData('http://localhost:3000/get/tech-events')
+        });
+    });
+</script>
+</html>
