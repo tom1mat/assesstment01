@@ -63,7 +63,7 @@
                 try {
                     let data = await fetch(url);
                     data = await data.json();
-                    callback(data);    
+                    return callback(data);    
                 } catch (error) {
                     console.error(error);
                 }
