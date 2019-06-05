@@ -1,4 +1,4 @@
-const version = "1";
+const version = '1';
 const cacheName = `assestment-app-V${version}`;
 
 self.addEventListener('activate', event => {

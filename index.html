@@ -36,27 +36,31 @@
 <script src="assets/jquery-3.3.1.js"></script>
 <script src="assets/jquery.dataTables.min.js"></script>
 <script>
+    const serverUrl = 'http://localhost:3000/';
+    const techEventsUrl = serverUrl+'get/tech-events';
+    const dataVersionUrl = serverUrl+'get/data-version';
+
     $(document).ready(function() {
         const fetchData = (url) =>{
             return async (request, callback, settings) =>{
                 let lastVersion;
                 try {
-                    lastVersion = await fetch('http://localhost:3000/get/data-version');
+                    lastVersion = await fetch(dataVersionUrl);
                     lastVersion = await lastVersion.json();
-                    console.log("Last data version: ",lastVersion);    
+                    console.log('Last data version: ',lastVersion);    
                 } catch (error) {
                     lastVersion = -1;
-                    console.log("Last data version could not be fetched, taking last data from cache.");
+                    console.log('Last data version could not be fetched, taking last data from cache.');
                 }
 
-                const cachedata = await caches.match(url);
-                if(cachedata){
-                    const data = await cachedata.json();
-                    if(lastVersion == -1 || data.version == lastVersion){
-                        console.log("Data cached!");
-                        return callback(data);
+                const cacheData = await caches.match(url);// Go and search data in cache
+                if(cacheData){// If we have our data cached
+                    const data = await cacheData.json();
+                    if(data.version == lastVersion  || lastVersion == -1){// If the version unmatchs
+                        console.log('Data cached!');                      // or we couldn't fetch the last version 
+                        return callback(data);                            // we retrieve the data from cache 
                     }else{
-                        console.log("Data was not cached because the version has changed!");
+                        console.log('Data was not cached because the version has changed!');
                     }
                 }
 
@@ -70,9 +74,9 @@
             }
         }
         $('#example').DataTable({
-            "processing": true,
-            "serverSide": true,
-            "ajax": fetchData('http://localhost:3000/get/tech-events')
+            'processing': true,
+            'serverSide': true,
+            'ajax': fetchData(techEventsUrl)
         });
     });
 </script>
