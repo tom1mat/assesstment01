@@ -1,4 +1,4 @@
-# Southworks Assesstment
+# Assesstment01
 In this project we are going to go through two ways of caching data in the browser (local storage and a service worker).
 The frontend will be covered by Jquery and Jquery Datatables  for consuming the data.
 On the other hand, the backend will be developed in Node and Express for having a fast and simple implementation.
